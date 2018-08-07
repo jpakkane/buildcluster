@@ -51,3 +51,19 @@ class RegisterWorker:
 class Ack:
     def __init__(self):
         self.id = ACK_ID
+
+def client(query, ip, port):
+    import pickle
+    import socket
+    assert(isinstance(query, (BuildRequest, RegisterWorker)))
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.setblocking(1)
+    sock.connect((ip, port))
+    try:
+        sock.sendall(pickle.dumps(query))
+        d = sock.recv(1024)
+        reply = pickle.loads(d)
+        assert(reply.id == BUILD_RESULT_ID or reply.id == ACK_ID)
+        return reply
+    finally:
+        sock.close()

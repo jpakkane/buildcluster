@@ -20,7 +20,6 @@ import socket
 import threading
 import socketserver
 import pickle
-import client
 
 import concurrent.futures
 
@@ -76,6 +75,8 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
 
 if __name__ == "__main__":
     HOST = "localhost"
+    print('THIS SERVICE IS EXTREMELY UNSECURE!')
+    print('ONLY USE FOR TESTING IN CLOSED NETWORKS!')
 
     server = ThreadedTCPServer((HOST, bprotocol.MASTER_PORT), ThreadedTCPRequestHandler)
     ip, port = server.server_address

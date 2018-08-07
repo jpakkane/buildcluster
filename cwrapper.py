@@ -17,30 +17,16 @@
 
 import socket
 import pickle
-import sys
+import sys, os
 
 import bprotocol
 
-
-def client(query, ip, port):
-    assert(isinstance(query, (bprotocol.BuildRequest, bprotocol.RegisterWorker)))
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.setblocking(1)
-    sock.connect((ip, port))
-    try:
-        sock.sendall(pickle.dumps(query))
-        d = sock.recv(1024)
-        reply = pickle.loads(d)
-        assert(reply.id == bprotocol.BUILD_RESULT_ID or reply.id == bprotocol.ACK_ID)
-        return reply
-    finally:
-        sock.close()
-
 if __name__ == "__main__":
-    HOST = "localhost"
+    HOST = "localhost" # sys.argv[1]
+    cmd = sys.argv[2:]
 
-    query = bprotocol.BuildRequest('/tmp', ['sh', '-c', 'sleep 1; echo hello'])
-    reply = client(query, HOST, bprotocol.MASTER_PORT)
+    query = bprotocol.BuildRequest(os.getcwd(), cmd)
+    reply = bprotocol.client(query, HOST, bprotocol.MASTER_PORT)
     print(reply.stdout.decode(encoding='utf-8', errors='ignore'))
     print(reply.stderr.decode(encoding='utf-8', errors='ignore'), file=sys.stderr)
     sys.exit(reply.returncode)
