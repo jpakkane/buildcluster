@@ -50,7 +50,7 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
 def get_current_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
-        s.connect(('127.0.0.1', 1))
+        s.connect(('8.8.8.8', 1))
         return s.getsockname()[0]
     finally:
         s.close()
