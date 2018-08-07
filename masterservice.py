@@ -62,9 +62,9 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
             if worker is None:
                 reply = bprotocol.BuildResult(1, b'No workers available', b'')
             else:
-                reply = client.client(query, worker, bprotocol.SLAVE_PORT)
+                reply = client.client(query, worker, bprotocol.WORKER_PORT)
             self.request.sendall(pickle.dumps(reply))
-        elif query.id == bprotocol.SLAVE_REGISTER_ID:
+        elif query.id == bprotocol.WORKER_REGISTER_ID:
             print('Added new host:', query.host)
             wlist.add_worker(query.host)
             self.request.sendall(pickle.dumps(bprotocol.Ack()))

@@ -18,11 +18,11 @@
 import os
 
 MASTER_PORT = 7776
-SLAVE_PORT = 6667
+WORKER_PORT = 6667
 
 BUILD_REQUEST_ID = 0
 BUILD_RESULT_ID = 1
-SLAVE_REGISTER_ID = 2
+WORKER_REGISTER_ID = 2
 ACK_ID = 3
 
 class BuildRequest:
@@ -43,9 +43,9 @@ class BuildResult:
         self.stdout = stdout
         self.stderr = stderr
 
-class RegisterSlave:
+class RegisterWorker:
     def __init__(self, host):
-        self.id = SLAVE_REGISTER_ID
+        self.id = WORKER_REGISTER_ID
         self.host = host
 
 class Ack:

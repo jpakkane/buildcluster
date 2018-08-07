@@ -27,6 +27,7 @@ import client
 import concurrent.futures
 
 import bprotocol
+import subprocess
 
 class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
     def handle(self):
@@ -37,8 +38,8 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
             print(e)
         assert isinstance(o, bprotocol.BuildRequest)
         assert(o.id == bprotocol.BUILD_REQUEST_ID)
-        time.sleep(2)
-        reply = bprotocol.BuildResult(0, b'stdout text', b'stderr text')
+        pc = subprocess.call(o.command, cwd=o.path)
+        reply = bprotocol.BuildResult(pc.returncode, pc.stdout, pc.stderr)
         self.request.sendall(pickle.dumps(reply))
 
 class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
@@ -54,17 +55,19 @@ def get_current_ip():
 
 def register_self(master_host):
     current_host = get_current_ip()
-    msg = bprotocol.RegisterSlave(current_host)
+    msg = bprotocol.RegisterWorker(current_host)
     client.client(msg, master_host, bprotocol.MASTER_PORT)
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         sys.exit('%s master_host' % sys.argv[0])
+    print('THIS SERVICE IS EXTREMELY UNSECURE!')
+    print('ONLY USE FOR TESTING IN CLOSED NETWORKS!')
     HOST = 'localhost'
     master_host = sys.argv[1]
     register_self(master_host)
 
-    server = ThreadedTCPServer((HOST, bprotocol.SLAVE_PORT), ThreadedTCPRequestHandler)
+    server = ThreadedTCPServer((HOST, bprotocol.WORKER_PORT), ThreadedTCPRequestHandler)
     ip, port = server.server_address
 
     print(ip, port)

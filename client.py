@@ -23,7 +23,7 @@ import bprotocol
 
 
 def client(query, ip, port):
-    assert(isinstance(query, (bprotocol.BuildRequest, bprotocol.RegisterSlave)))
+    assert(isinstance(query, (bprotocol.BuildRequest, bprotocol.RegisterWorker)))
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.setblocking(1)
     sock.connect((ip, port))
