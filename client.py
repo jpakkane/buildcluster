@@ -21,23 +21,26 @@ import sys
 
 import bprotocol
 
-def client(ip, port):
+
+def client(query, ip, port):
+    assert(isinstance(query, (bprotocol.BuildRequest, bprotocol.RegisterSlave)))
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.setblocking(1)
     sock.connect((ip, port))
-    msg = bprotocol.BuildRequest('/tmp', ['sh', '-c', 'sleep 1; echo hello'])
     try:
-        sock.sendall(pickle.dumps(msg))
+        sock.sendall(pickle.dumps(query))
         d = sock.recv(1024)
         reply = pickle.loads(d)
-        assert(reply.id == bprotocol.BUILD_RESULT_ID)
-        print(reply.stdout.decode(encoding='utf-8', errors='ignore'))
-        print(reply.stderr.decode(encoding='utf-8', errors='ignore'), file=sys.stderr)
-        sys.exit(reply.returncode)
+        assert(reply.id == bprotocol.BUILD_RESULT_ID or reply.id == bprotocol.ACK_ID)
+        return reply
     finally:
         sock.close()
 
 if __name__ == "__main__":
     HOST = "localhost"
 
-    client(HOST, bprotocol.SLAVE_PORT)
+    query = bprotocol.BuildRequest('/tmp', ['sh', '-c', 'sleep 1; echo hello'])
+    reply = client(query, HOST, bprotocol.MASTER_PORT)
+    print(reply.stdout.decode(encoding='utf-8', errors='ignore'))
+    print(reply.stderr.decode(encoding='utf-8', errors='ignore'), file=sys.stderr)
+    sys.exit(reply.returncode)

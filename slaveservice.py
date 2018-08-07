@@ -20,6 +20,9 @@ import socket
 import threading
 import socketserver
 import pickle
+import sys
+
+import client
 
 import concurrent.futures
 
@@ -41,8 +44,25 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
 class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     pass
 
+def get_current_ip():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        s.connect(('127.0.0.1', 1))
+        return s.getsockname()[0]
+    finally:
+        s.close()
+
+def register_self(master_host):
+    current_host = get_current_ip()
+    msg = bprotocol.RegisterSlave(current_host)
+    client.client(msg, master_host, bprotocol.MASTER_PORT)
+
 if __name__ == "__main__":
-    HOST = "localhost"
+    if len(sys.argv) != 2:
+        sys.exit('%s master_host' % sys.argv[0])
+    HOST = 'localhost'
+    master_host = sys.argv[1]
+    register_self(master_host)
 
     server = ThreadedTCPServer((HOST, bprotocol.SLAVE_PORT), ThreadedTCPRequestHandler)
     ip, port = server.server_address
