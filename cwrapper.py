@@ -23,7 +23,7 @@ import subprocess
 import bprotocol
 
 if __name__ == "__main__":
-    HOST = "localhost" # sys.argv[1]
+    HOST = sys.argv[1]
     cmd = sys.argv[2:]
 
     if 'FORCE_LOCAL' in os.environ:

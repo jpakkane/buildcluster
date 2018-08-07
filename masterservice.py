@@ -61,7 +61,7 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
             if worker is None:
                 reply = bprotocol.BuildResult(1, b'No workers available', b'')
             else:
-                reply = client.client(query, worker, bprotocol.WORKER_PORT)
+                reply = bprotocol.client(query, worker, bprotocol.WORKER_PORT)
             self.request.sendall(pickle.dumps(reply))
         elif query.id == bprotocol.WORKER_REGISTER_ID:
             print('Added new host:', query.host)
@@ -74,8 +74,8 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     pass
 
 if __name__ == "__main__":
-    HOST = "localhost"
-    print('THIS SERVICE IS EXTREMELY UNSECURE!')
+    HOST = ""
+    print('THIS SERVICE IS EXTREMELY INSECURE!')
     print('ONLY USE FOR TESTING IN CLOSED NETWORKS!')
 
     server = ThreadedTCPServer((HOST, bprotocol.MASTER_PORT), ThreadedTCPRequestHandler)

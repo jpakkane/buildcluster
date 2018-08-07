@@ -36,8 +36,12 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
             print(e)
         assert isinstance(o, bprotocol.BuildRequest)
         assert(o.id == bprotocol.BUILD_REQUEST_ID)
-        pc = subprocess.call(o.command, cwd=o.path)
-        reply = bprotocol.BuildResult(pc.returncode, pc.stdout, pc.stderr)
+        pc = subprocess.Popen(o.command,
+                              cwd=o.path,
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE)
+        stdo, stde = pc.communicate()
+        reply = bprotocol.BuildResult(pc.returncode, stdo, stde)
         self.request.sendall(pickle.dumps(reply))
 
 class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
@@ -59,9 +63,9 @@ def register_self(master_host):
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         sys.exit('%s master_host' % sys.argv[0])
-    print('THIS SERVICE IS EXTREMELY UNSECURE!')
+    print('THIS SERVICE IS EXTREMELY INSECURE!')
     print('ONLY USE FOR TESTING IN CLOSED NETWORKS!')
-    HOST = 'localhost'
+    HOST = ''
     master_host = sys.argv[1]
     register_self(master_host)
 

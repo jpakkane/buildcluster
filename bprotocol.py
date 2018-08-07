@@ -61,7 +61,7 @@ def client(query, ip, port):
     sock.connect((ip, port))
     try:
         sock.sendall(pickle.dumps(query))
-        d = sock.recv(1024)
+        d = sock.recv(1024*1024)
         reply = pickle.loads(d)
         assert(reply.id == BUILD_RESULT_ID or reply.id == ACK_ID)
         return reply
