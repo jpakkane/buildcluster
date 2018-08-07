@@ -17,22 +17,27 @@
 
 import socket
 import pickle
+import sys
+
+import bprotocol
 
 def client(ip, port):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.setblocking(1)
     sock.connect((ip, port))
-    msg = ['something']
+    msg = bprotocol.BuildRequest('/tmp', ['sh', '-c', 'sleep 1; echo hello'])
     try:
         sock.sendall(pickle.dumps(msg))
         d = sock.recv(1024)
         reply = pickle.loads(d)
-        print('Reply:', reply)
+        assert(reply.id == bprotocol.BUILD_RESULT_ID)
+        print(reply.stdout.decode(encoding='utf-8', errors='ignore'))
+        print(reply.stderr.decode(encoding='utf-8', errors='ignore'), file=sys.stderr)
+        sys.exit(reply.returncode)
     finally:
         sock.close()
 
 if __name__ == "__main__":
     HOST = "localhost"
-    PORT = 6667
 
-    client(HOST, PORT)
+    client(HOST, bprotocol.SLAVE_PORT)
