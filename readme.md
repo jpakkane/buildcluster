@@ -24,6 +24,7 @@ Start `workerservice.py master_host_address` on all workers.
 
 Go to desktop machine and run this:
 
+    FORCE_LOCAL=1 \
     CC='/path/to/cwrapper.py master_hostname gcc' \
     CXX='/path/to/cwrapper.py master_hostname g++' \
     meson/cmake/configure/etc <other options>
