@@ -52,6 +52,17 @@ class Ack:
     def __init__(self):
         self.id = ACK_ID
 
+def read_pickle_object(sock):
+    import pickle
+    d = b''
+    while True:
+        try:
+            d += sock.recv(1024)
+            reply = pickle.loads(d)
+            return reply
+        except Exception:
+            continue
+
 def client(query, ip, port):
     import pickle
     import socket
@@ -61,8 +72,7 @@ def client(query, ip, port):
     sock.connect((ip, port))
     try:
         sock.sendall(pickle.dumps(query))
-        d = sock.recv(1024*1024)
-        reply = pickle.loads(d)
+        reply = read_pickle_object(sock)
         assert(reply.id == BUILD_RESULT_ID or reply.id == ACK_ID)
         return reply
     finally:

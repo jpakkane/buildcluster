@@ -50,12 +50,8 @@ wlist = WorkerList()
 
 class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
     def handle(self):
-        import time
-        try:
-            query = pickle.loads(self.request.recv(1024))
-        except Exception as e:
-            print(e)
-        assert hasattr(query, 'id')
+        query = bprotocol.read_pickle_object(self.request)
+        assert(hasattr(query, 'id'))
         if query.id == bprotocol.BUILD_REQUEST_ID:
             worker = wlist.get_worker()
             if worker is None:

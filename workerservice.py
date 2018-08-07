@@ -29,11 +29,7 @@ import subprocess
 
 class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
     def handle(self):
-        import time
-        try:
-            o = pickle.loads(self.request.recv(1024))
-        except Exception as e:
-            print(e)
+        o = bprotocol.read_pickle_object(self.request)
         assert isinstance(o, bprotocol.BuildRequest)
         assert(o.id == bprotocol.BUILD_REQUEST_ID)
         pc = subprocess.Popen(o.command,
