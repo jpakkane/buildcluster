@@ -18,6 +18,7 @@
 import socket
 import pickle
 import sys, os
+import subprocess
 
 import bprotocol
 
@@ -25,6 +26,8 @@ if __name__ == "__main__":
     HOST = "localhost" # sys.argv[1]
     cmd = sys.argv[2:]
 
+    if 'FORCE_LOCAL' in os.environ:
+        sys.exit(subprocess.run(cmd).returncode)
     query = bprotocol.BuildRequest(os.getcwd(), cmd)
     reply = bprotocol.client(query, HOST, bprotocol.MASTER_PORT)
     print(reply.stdout.decode(encoding='utf-8', errors='ignore'))

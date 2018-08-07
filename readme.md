@@ -24,10 +24,13 @@ Start `workerservice.py master_host_address` on all workers.
 
 Go to desktop machine and run this:
 
-    CC='/path/to/cwrapper.py gcc' CXX='/path/to/cwrapper.py g++' \
-      meson/cmake/configure/etc <other options>
+    CC='/path/to/cwrapper.py master_hostname gcc' \
+    CXX='/path/to/cwrapper.py master_hostname g++' \
+    meson/cmake/configure/etc <other options>
 
-This sets up the system. To do the compilation do:
+Where `master_hostname` is the name or IP address of the machine
+running the master server process. This sets up the system. To do the
+compilation do:
 
     make/ninja/etc -j total_number_of_cores
 

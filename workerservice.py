@@ -22,8 +22,6 @@ import socketserver
 import pickle
 import sys
 
-import client
-
 import concurrent.futures
 
 import bprotocol
@@ -56,7 +54,7 @@ def get_current_ip():
 def register_self(master_host):
     current_host = get_current_ip()
     msg = bprotocol.RegisterWorker(current_host)
-    client.client(msg, master_host, bprotocol.MASTER_PORT)
+    bprotocol.client(msg, master_host, bprotocol.MASTER_PORT)
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
