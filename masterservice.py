@@ -28,23 +28,31 @@ import bprotocol
 class WorkerList:
     
     def __init__(self):
-        self.worker_list = []
+        self.worker_list = {}
         self.lock = threading.Lock()
         self.current_worker = 0
 
     def add_worker(self, worker):
         with self.lock:
-            self.worker_list.append(worker)
+            self.worker_list[worker] = 0
 
     def get_worker(self):
         with self.lock:
             if len(self.worker_list) == 0:
                 return None
-            self.current_worker += 1
-            if self.current_worker >= len(self.worker_list):
-                self.current_worker = 0
-            return self.worker_list[self.current_worker]
+            smallest_load = 9999999
+            lowest_worker = None
+            for key, value in self.worker_list.items():
+                if value < smallest_load:
+                    smallest_load = value
+                    lowest_worker = key
+            assert(lowest_worker is not None)
+            self.worker_list[lowest_worker] += 1
+            return lowest_worker
 
+    def release_worker(self, worker):
+        with self.lock:
+            self.worker_list[worker] -= 1
 
 wlist = WorkerList()
 
@@ -57,7 +65,10 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
             if worker is None:
                 reply = bprotocol.BuildResult(1, b'No workers available', b'')
             else:
-                reply = bprotocol.client(query, worker, bprotocol.WORKER_PORT)
+                try:
+                    reply = bprotocol.client(query, worker, bprotocol.WORKER_PORT)
+                finally:
+                    wlist.release_worker(worker)
             self.request.sendall(pickle.dumps(reply))
         elif query.id == bprotocol.WORKER_REGISTER_ID:
             print('Added new host:', query.host)

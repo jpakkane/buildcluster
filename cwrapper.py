@@ -31,7 +31,7 @@ if __name__ == "__main__":
     query = bprotocol.BuildRequest(os.getcwd(), cmd)
     reply = bprotocol.client(query, HOST, bprotocol.MASTER_PORT)
     if reply.stdout != b'':
-        print(reply.stdout.decode(encoding='utf-8', errors='ignore'))
+        print(reply.stdout.decode(encoding='utf-8', errors='ignore'), end='')
     if reply.stderr != b'':
-        print(reply.stderr.decode(encoding='utf-8', errors='ignore'), file=sys.stderr)
+        print(reply.stderr.decode(encoding='utf-8', errors='ignore'), file=sys.stderr, end='')
     sys.exit(reply.returncode)
