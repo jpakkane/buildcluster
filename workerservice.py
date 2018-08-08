@@ -37,6 +37,7 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
                               stdout=subprocess.PIPE,
                               stderr=subprocess.PIPE)
         stdo, stde = pc.communicate()
+        subprocess.call(['sync']) # Ensure all outputs get to NFS.
         reply = bprotocol.BuildResult(pc.returncode, stdo, stde)
         self.request.sendall(pickle.dumps(reply))
 
